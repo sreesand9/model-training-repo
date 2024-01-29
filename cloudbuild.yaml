@@ -1,0 +1,25 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/big-query-practice-412523/bank-campaign-model', '.']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/big-query-practice-412523/bank-campaign-model']
+
+- name: 'gcr.io/big-query-practice-412523/bank-campaign-model'
+  entrypoint: 'bash'
+  args:
+   - '-c'
+   - |
+      python -m pytest
+
+- name: 'gcr.io/cloud-builders/git'
+  args: ['clone', 'https://github.com/sreesand9/model-training-repo.git']
+
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['cp', 'model-training-repo/bank_campaign_model_training.py', 'gs://us-central1-mlops-airflow-319efcf6-bucket/dags']
+
+images:
+- 'gcr.io/big-query-practice-412523/bank-campaign-model'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
